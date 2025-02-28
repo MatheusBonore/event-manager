@@ -15,6 +15,7 @@ class UserSeeder extends Seeder
 			'email' => 'matheus.bonore@gmail.com',
 			'email_verified_at' => now(),
 			'password' => Hash::make('root@eventmanager'),
+			'role' => 'admin',
 		]);
 
 		User::factory(5)->create();
