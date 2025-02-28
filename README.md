@@ -64,3 +64,95 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## HTTP Responses
+
+- **1XX**: Information — the request has been accepted or the process is still ongoing;
+
+- **2XX**: Confirmation
+	- **200** — Successful request
+	- **201** — Created — Generally used for POST after an insertion
+
+- **3XX**: Redirect
+	- **301** - Moved Permanently
+	- **302** - Moved
+
+- **4XX**: Client error
+	- **400** - Bad Request
+	- **401** - Unauthorized
+	- **403** - Forbidden
+	- **404** - Not Found
+	- **422** - Unprocessable Entity
+
+- **5XX**: Error on the server — the server failed to complete the request.
+	- **500** - Internal Server Error
+	- **502** - Bad Gateway
+
+## Documentation Links
+- **[Tailwindcss](https://tailwindcss.com/docs/installation/using-vite)**
+- **[Flowbite](https://flowbite.com/docs/getting-started/introduction/)**
+
+## Commands
+```bash
+npm run build
+```
+
+```bash
+npm run dev
+```
+
+```bash
+php artisan serve
+```
+
+```bash
+php artisan storage:link
+```
+
+```bash
+php artisan make:model ['NAME'] --migration
+```
+
+```bash
+php artisan make:controller ['NAME']Controller --api
+```
+
+```bash
+php artisan route:list
+```
+
+```bash
+php artisan route:cache
+```
+
+```bash
+php artisan route:clear
+```
+
+```bash
+php artisan list
+```
+
+```bash
+php artisan make:migration create_['NAME']_table
+```
+
+```bash
+php artisan migrate
+```
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+```bash
+php artisan optimize:clear
+```
+
+```bash
+php artisan migrate:fresh
+```
+
+```bash
+composer dump-autoload
+```
