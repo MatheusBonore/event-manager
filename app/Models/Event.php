@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 // use Laravel\Sanctum\HasApiTokens;
 
@@ -15,21 +14,18 @@ use Illuminate\Notifications\Notifiable;
  * * @method static Builder find(string $value)
  * * @method public Builder update(array $values)
  */
-class User extends Authenticatable
+class Event extends Model
 {
 	use HasUuids, HasFactory, Notifiable;
 
-	protected $table = 'users';
+	protected $table = 'events';
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var array<int, string>
-	 */
 	protected $fillable = [
-		'name',
-		'email',
-		'password',
+		'title',
+		'description',
+		'location',
+		'capacity',
+		'status',
 	];
 
 	protected array $dates = [
@@ -37,28 +33,16 @@ class User extends Authenticatable
 		'updated_at',
 	];
 
-	/**
-	 * The attributes that should be hidden for serialization.
-	 *
-	 * @var array<int, string>
-	 */
-	protected $hidden = [
-		'password',
-		'remember_token',
-	];
+	protected $hidden = [];
 
-	protected $primaryKey = 'user';
+	protected $primaryKey = 'event';
 	protected $keyType = 'string';
 
 	public $timestamps = true;
 	public $incrementing = false;
 
-	/**
-	 * The attributes that should be cast.
-	 *
-	 * @var array<string, string>
-	 */
 	protected $casts = [
-		'email_verified_at' => 'datetime',
+		'start_time' => 'datetime',
+		'end_time' => 'datetime',
 	];
 }
