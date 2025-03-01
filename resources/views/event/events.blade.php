@@ -61,30 +61,42 @@
 
 								<tr class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 ' : ' bg-white border-b-2 dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }}">
 									<th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-										<x-dashboard.avatar class="relative cursor-pointer" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['user']['initials_name']" />
+										<x-event.avatar class="relative cursor-pointer" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['user']['initials_name']" />
 
-										<x-dashboard.tooltip :id="'tooltip-avatar-' . $index_event">
+										<x-event.tooltip :id="'tooltip-avatar-' . $index_event">
 											{{ $event['user']['name'] }}
-										</x-dashboard.tooltip>
+										</x-event.tooltip>
 
 										<div class="ps-3">
 											<div class="text-base font-semibold">{{ $event['title'] }}</div>
 											<div class="font-normal text-gray-500 cursor-pointer" data-tooltip-target="tooltip-description-{{ $index_event }}" data-tooltip-placement="right">{{ $event['truncated_description'] }}</div>
 
-											<x-dashboard.tooltip :id="'tooltip-description-' . $index_event">
+											<x-event.tooltip :id="'tooltip-description-' . $index_event">
 												{{ $event['description'] }}
-											</x-dashboard.tooltip>
+											</x-event.tooltip>
 										</div>
 									</th>
-									<td class="px-6 py-4">
+									<td class="px-6 py-4" nowrap>
 										<div class="flex -space-x-4 rtl:space-x-reverse">
-											@foreach ($event['users'] as $index_user => $user)
-												@if ($index_user < 5)
-													<x-dashboard.avatar data-tooltip-target="tooltip-avatar-{{ $index_event . $index_user }}" data-tooltip-placement="bottom" class="relative z-[{{ $index_user + 10 }}] cursor-pointer" :value="$user['initials_name']" />
+											@php
+												$names = [];
+											@endphp
 
-													<x-dashboard.tooltip :id="'tooltip-avatar-' . $index_event . $index_user">
+											@foreach ($event['users'] as $index_user => $user)
+												@php
+													$id_tooltip = md5($index_event . '-' . $index_user);
+												@endphp
+
+												@if ($index_user < 5)
+													<x-event.avatar data-tooltip-target="{{ $id_tooltip }}" data-tooltip-placement="bottom" class="relative z-[{{ $index_user + 10 }}] cursor-pointer" :value="$user['initials_name']" />
+
+													<x-event.tooltip :id="$id_tooltip">
 														{{ $user['name'] }}
-													</x-dashboard.tooltip>
+													</x-event.tooltip>
+												@else
+													@php
+														array_push($names, $user['name']);
+													@endphp
 												@endif
 											@endforeach
 
@@ -92,6 +104,10 @@
 												<a class="relative z-[{{ 15 }}] flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-700 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800" href="#">
 													+{{ count($event['users']) - 5 }}
 												</a>
+
+												{{-- Colocar para abrir modal para ver outros participantes --}}
+
+												{{-- {{ implode(PHP_EOL, $names) }} --}}
 											@endif
 										</div>
 									</td>

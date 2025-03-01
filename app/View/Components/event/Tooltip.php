@@ -1,13 +1,13 @@
 <?php
 
-	namespace App\View\Components\dashboard;
+	namespace App\View\Components\event;
 
 	use Closure;
 	use Illuminate\View\Component;
 	use Illuminate\Contracts\View\View;
 
-	class Avatar extends Component {
+	class Tooltip extends Component {
 		public function render(): View|Closure|string {
-			return view('dashboard.components.avatar');
+			return view('event.components.tooltip');
 		}
 	}

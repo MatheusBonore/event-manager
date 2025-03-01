@@ -47,7 +47,7 @@ class EventController extends Controller
 			return $event;
 		});
 
-		return view('dashboard.events', [
+		return view('event.events', [
 			'events' => $events
 		]);
 	}
