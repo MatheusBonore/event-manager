@@ -13,6 +13,7 @@ return new class extends Migration {
 	{
 		Schema::create('events', function (Blueprint $table) {
 			$table->uuid('event')->primary();
+			$table->foreignUuid('users_user')->constrained('users', 'user')->cascadeOnDelete();
 			$table->string('title');
 			$table->text('description');
 			$table->dateTime('start_time');

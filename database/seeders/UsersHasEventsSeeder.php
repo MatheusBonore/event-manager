@@ -11,7 +11,7 @@ class UsersHasEventsSeeder extends Seeder
 {
 	public function run(): void
 	{
-		$emails = ['matheus.bonore@gmail.com'];
+		$emails = User::where('role', 'admin')->pluck('email')->toArray();
 
 		$users = User::all();
 		$events = Event::all();
@@ -22,10 +22,14 @@ class UsersHasEventsSeeder extends Seeder
 
 		if ($filteredUsers->isNotEmpty() && $events->isNotEmpty()) {
 			$events->each(function ($event) use ($filteredUsers) {
-				UsersHasEvents::factory()->create([
-					'users_user' => $filteredUsers->random()->user,
-					'events_event' => $event->event,
-				]);
+				$randomUsers = $filteredUsers->random(rand(0, min($event->capacity, $filteredUsers->count())));
+
+				foreach ($randomUsers as $user) {
+					UsersHasEvents::factory()->create([
+						'users_user' => $user->user,
+						'events_event' => $event->event,
+					]);
+				}
 			});
 		}
 

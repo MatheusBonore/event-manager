@@ -45,4 +45,13 @@ class Event extends Model
 		'start_time' => 'datetime',
 		'end_time' => 'datetime',
 	];
+
+	public function user() {
+		return $this->belongsTo(User::class, 'users_user', 'user');
+	}
+
+	public function users()
+	{
+		return $this->belongsToMany(User::class, 'users_has_events', 'events_event', 'users_user');
+	}
 }

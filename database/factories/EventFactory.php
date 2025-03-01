@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -22,6 +23,10 @@ class EventFactory extends Factory
 
 		return [
 			'event' => Str::uuid(),
+			'users_user' => $this->faker->randomElement(
+				User::where('role', 'admin')->pluck('user')->toArray()
+				?: [User::factory()->create(['role' => 'admin'])->user]
+			),
 			'title' => $this->faker->sentence(3),
 			'description' => $this->faker->paragraph(),
 			'start_time' => $startTime,
