@@ -33,20 +33,58 @@
 							</tr>
 						</thead>
 						<tbody>
-							@foreach ($events as $event)
-								<tr class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600' : 'bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }}">
+							@foreach ($events as $index_event => $event)
+								@php
+									switch ($event['status']) {
+										case 'open':
+											$bg_color = 'bg-green-500';
+											$border_color = 'border-r-green-500';
+											$status_text = 'Open';
+											break;
+										case 'canceled':
+											$bg_color = 'bg-red-500';
+											$border_color = 'border-r-red-500';
+											$status_text = 'Canceled';
+											break;
+										case 'closed':
+											$bg_color = 'bg-gray-500';
+											$border_color = 'border-r-gray-500';
+											$status_text = 'Closed';
+											break;
+										default:
+											$bg_color = 'bg-blue-500';
+											$border_color = 'border-r-blue-500';
+											$status_text = 'Unknown';
+											break;
+									}
+								@endphp
+
+								<tr class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 ' : ' bg-white border-b-2 dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }}">
 									<th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-										<x-dashboard.avatar class="relative" :value="$event['user']['initials_name']" />
+										<x-dashboard.avatar class="relative cursor-pointer" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['user']['initials_name']" />
+
+										<x-dashboard.tooltip :id="'tooltip-avatar-' . $index_event">
+											{{ $event['user']['name'] }}
+										</x-dashboard.tooltip>
+
 										<div class="ps-3">
 											<div class="text-base font-semibold">{{ $event['title'] }}</div>
-											<div class="font-normal text-gray-500">{{ $event['truncated_description'] }}</div>
+											<div class="font-normal text-gray-500 cursor-pointer" data-tooltip-target="tooltip-description-{{ $index_event }}" data-tooltip-placement="right">{{ $event['truncated_description'] }}</div>
+
+											<x-dashboard.tooltip :id="'tooltip-description-' . $index_event">
+												{{ $event['description'] }}
+											</x-dashboard.tooltip>
 										</div>
 									</th>
 									<td class="px-6 py-4">
 										<div class="flex -space-x-4 rtl:space-x-reverse">
-											@foreach ($event['users'] as $index => $user)
-												@if ($index < 5)
-													<x-dashboard.avatar class="relative z-[{{ $index + 10 }}]" :value="$user['initials_name']" />
+											@foreach ($event['users'] as $index_user => $user)
+												@if ($index_user < 5)
+													<x-dashboard.avatar data-tooltip-target="tooltip-avatar-{{ $index_event . $index_user }}" data-tooltip-placement="bottom" class="relative z-[{{ $index_user + 10 }}] cursor-pointer" :value="$user['initials_name']" />
+
+													<x-dashboard.tooltip :id="'tooltip-avatar-' . $index_event . $index_user">
+														{{ $user['name'] }}
+													</x-dashboard.tooltip>
 												@endif
 											@endforeach
 
@@ -64,29 +102,9 @@
 										{{ $event['users']->count() }} /
 										{{ $event['capacity'] }}
 									</td>
-									<td class="px-6 py-4 text-center">
+									<td class="px-6 py-4 text-center border-r-4 {{ $border_color}}">
 										<div class="flex text-center items-center">
-											@php
-												switch ($event['status']) {
-													case 'open':
-														$color = 'bg-green-500';
-														$status_text = 'Open';
-														break;
-													case 'canceled':
-														$color = 'bg-red-500';
-														$status_text = 'Canceled';
-														break;
-													case 'closed':
-														$color = 'bg-gray-500';
-														$status_text = 'Closed';
-														break;
-													default:
-														$color = 'bg-blue-500';
-														$status_text = 'Unknown';
-														break;
-												}
-											@endphp
-											<div class="h-2.5 w-2.5 rounded-full {{ $color }} me-2"></div> {{ $status_text }}
+											<div class="h-2.5 w-2.5 rounded-full {{ $bg_color }} me-2"></div> {{ $status_text }}
 										</div>
 									</td>
 								</tr>
