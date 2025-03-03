@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Models\Event;
+use Carbon\Carbon;
 use Illuminate\View\View;
 
 class EventController extends Controller
@@ -43,6 +44,46 @@ class EventController extends Controller
 			$event->truncated_description = strlen($event->description) > $length
 				? substr($event->description, 0, $pos - 1) . '...'
 				: $event->description;
+
+
+			// Formatar data de inicio do evento
+			$event->start_date_formatted = Carbon::parse($event->start_time)->format('l, d F Y H:i');
+
+			// Calcular as datas do evento
+			$startDate = Carbon::parse($event->start_time);
+			$endDate = Carbon::parse($event->end_time);
+		
+			if ($startDate->isPast()) {
+				// Evento já passou
+				$event->event_status = 'Evento já passou';
+			} else {
+				// Calcular a duração do evento
+				$durationInHours = $startDate->diffInHours($endDate);
+				$days = floor($durationInHours / 24);
+				$hours = $durationInHours % 24;
+				$minutes = $startDate->diffInMinutes($endDate) % 60;
+			
+				// Construir a string da duração do evento
+				$duration = "";
+
+				if ($days > 0) {
+					$duration .= "{$days} " . ($days == 1 ? "day" : "days");
+				}
+
+				if ($hours > 0) {
+					$duration .= ($duration ? " e " : "") . "{$hours} " . ($hours == 1 ? "hour" : "hours");
+				}
+
+				if ($minutes > 0 || ($days == 0 && $hours == 0)) {
+					$duration .= ($duration ? " e " : "") . "{$minutes} " . ($minutes == 1 ? "minute" : "minutes");
+				}
+
+				if (empty($duration)) {
+					$duration = "Less than 1 minute";
+				}
+
+				$event->event_status = $duration;
+			}
 
 			return $event;
 		});
