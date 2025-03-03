@@ -28,7 +28,6 @@ class UsersHasEvents extends Model
 	protected array $dates = [
 		'created_at',
 		'updated_at',
-		'deleted_at'
 	];
 
 	protected $hidden = [];

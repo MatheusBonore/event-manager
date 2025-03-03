@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-// use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * * @method static Builder where($column, $operator = null, $value = null, $boolean = 'and')
@@ -16,13 +17,16 @@ use Illuminate\Notifications\Notifiable;
  */
 class Event extends Model
 {
-	use HasUuids, HasFactory, Notifiable;
+	use HasUuids, HasApiTokens, SoftDeletes, HasFactory, Notifiable;
 
 	protected $table = 'events';
 
 	protected $fillable = [
+		'users_user',
 		'title',
 		'description',
+		'start_time',
+		'end_time',
 		'location',
 		'capacity',
 		'status',
@@ -31,6 +35,7 @@ class Event extends Model
 	protected array $dates = [
 		'created_at',
 		'updated_at',
+		'deleted_at',
 	];
 
 	protected $hidden = [];
@@ -46,11 +51,11 @@ class Event extends Model
 		'end_time' => 'datetime',
 	];
 
-	public function user() {
+	public function creator() {
 		return $this->belongsTo(User::class, 'users_user', 'user');
 	}
 
-	public function users()
+	public function attendees()
 	{
 		return $this->belongsToMany(User::class, 'users_has_events', 'events_event', 'users_user');
 	}

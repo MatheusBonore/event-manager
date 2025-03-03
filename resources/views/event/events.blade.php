@@ -61,10 +61,10 @@
 
 								<tr class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 ' : ' bg-white border-b-2 dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }}">
 									<th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-										<x-event.avatar class="relative cursor-pointer" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['user']['initials_name']" />
+										<x-event.avatar class="relative cursor-pointer" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['creator']['initials_name']" />
 
 										<x-event.tooltip :id="'tooltip-avatar-' . $index_event">
-											{{ $event['user']['name'] }}
+											{{ $event['creator']['name'] }}
 										</x-event.tooltip>
 
 										<div class="ps-3">
@@ -82,7 +82,7 @@
 												$names = [];
 											@endphp
 
-											@foreach ($event['users'] as $index_user => $user)
+											@foreach ($event['attendees'] as $index_user => $user)
 												@php
 													$id_tooltip = md5($index_event . '-' . $index_user);
 												@endphp
@@ -100,9 +100,9 @@
 												@endif
 											@endforeach
 
-											@if (count($event['users']) > 5)
+											@if (count($event['attendees']) > 5)
 												<a class="relative z-[{{ 15 }}] flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-700 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800" href="#">
-													+{{ count($event['users']) - 5 }}
+													+{{ count($event['attendees']) - 5 }}
 												</a>
 
 												{{-- Colocar para abrir modal para ver outros participantes --}}
@@ -115,7 +115,7 @@
 										{{ $event['location'] }}
 									</td>
 									<td class="px-6 py-4 text-center">
-										{{ $event['users']->count() }} /
+										{{ $event['attendees']->count() }} /
 										{{ $event['capacity'] }}
 									</td>
 									<td class="px-6 py-4 text-center border-r-4 {{ $border_color}}">

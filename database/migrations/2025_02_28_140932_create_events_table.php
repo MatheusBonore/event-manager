@@ -23,6 +23,8 @@ return new class extends Migration {
 			$table->enum('status', ['open', 'closed', 'canceled'])->default('open');
 			$table->timestamp('created_at')->useCurrent();
 			$table->timestamp('updated_at')->nullable();
+
+			$table->softDeletes();
 		});
 	}
 

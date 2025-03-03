@@ -9,19 +9,19 @@ class EventController extends Controller
 {
 	public function index(): View
 	{
-		$events = Event::with(['user', 'users'])->get()->map(function ($event) {
+		$events = Event::with(['creator', 'attendees'])->get()->map(function ($event) {
 			// Gerar as iniciais dos nomes
 
-			$parts = explode(" ", $event->user->name);
+			$parts = explode(" ", $event->creator->name);
 
 			$initials = "";
 			foreach ($parts as $part) {
 				$initials .= strtoupper($part[0]);
 			}
 			
-			$event->user->initials_name = $initials;
+			$event->creator->initials_name = $initials;
 			
-			$event->users->transform(function ($user) {
+			$event->attendees->transform(function ($user) {
 				$parts = explode(" ", $user->name);
 		
 				$initials = "";
