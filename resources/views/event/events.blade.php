@@ -59,7 +59,7 @@
 									}
 								@endphp
 
-								<tr onclick="openModalEvent({{ json_encode($event) }})" class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 ' : ' bg-white border-b-2 dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }}">
+								<tr onclick="openModalEvent({{ json_encode($event) }})" class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 ' : ' bg-white border-b-2 dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }} cursor-pointer">
 									<th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
 										<x-event.avatar class="relative cursor-pointer" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['creator']['initials_name']" />
 
@@ -181,7 +181,7 @@
 	<x-event.modal id="more-details-modal" name="more-details-modal" title="More event details" focusable>
 		<form class="p-4 md:p-5">
 			<div class="flex items-center gap-1 h-full mb-2">
-				<x-event.avatar class="relative cursor-pointer" name="avatar-more-details-modal" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="'AM'" />
+				<x-event.avatar class="relative cursor-pointer" name="avatar-more-details-modal" :value="'AM'" />
 
 				<div class="ps-3">
 					<div class="text-base font-semibold text-gray-900 dark:text-white" id="name-more-details-modal">name-more-details-modal</div>
@@ -193,31 +193,31 @@
 			<div class="grid gap-4 mb-4 grid-cols-2">
 				<div class="col-span-2">
 					<x-input-label for="title" :value="__('Title')" />
-					<x-event.text-input type="text" name="title" id="title" placeholder="Event title" required />
+					<x-event.text-input type="text" name="title" id="title" placeholder="Event title" disabled />
 				</div>
 				<div class="col-span-2">
 					<x-input-label for="description" :value="__('Description')" />
-					<textarea id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-3xl border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Event description"></textarea>
+					<textarea id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-3xl border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Event description" disabled></textarea>
 				</div>
 				<div class="col-span-2 sm:col-span-1">
 					<x-input-label for="start_time" :value="__('Start Time')" />
-					<x-event.text-input type="datetime-local" name="start_time" id="start_time" required />
+					<x-event.text-input type="datetime-local" name="start_time" id="start_time" disabled />
 				</div>
 				<div class="col-span-2 sm:col-span-1">
 					<x-input-label for="end_time" :value="__('End Time')" />
-					<x-event.text-input type="datetime-local" name="end_time" id="end_time" required />
+					<x-event.text-input type="datetime-local" name="end_time" id="end_time" disabled />
 				</div>
 				<div class="col-span-2">
 					<x-input-label for="location" :value="__('Location')" />
-					<x-event.text-input type="text" name="location" id="location" placeholder="Event location" required />
+					<x-event.text-input type="text" name="location" id="location" placeholder="Event location" disabled />
 				</div>
 				<div class="col-span-2 sm:col-span-1">
 					<x-input-label for="capacity" :value="__('Capacity')" />
-					<x-event.text-input type="number" name="capacity" id="capacity" placeholder="Number of attendees" required />
+					<x-event.text-input type="number" name="capacity" id="capacity" placeholder="Number of attendees" disabled />
 				</div>
 				<div class="col-span-2 sm:col-span-1">
 					<x-input-label for="status" :value="__('Status')" />
-					<select id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-3xl focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+					<select id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-3xl focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" disabled>
 						<option value="open">Open</option>
 						<option value="closed">Closed</option>
 						<option value="canceled">Canceled</option>

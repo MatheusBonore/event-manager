@@ -43,7 +43,9 @@ class EventController extends Controller
 
 	public function store(StoreEventRequest $request): JsonResponse
 	{
-		$event = array_merge($request->validated(), ['users_user' => Auth::user()->user]);
+		$event = array_merge($request->validated(), [
+			'users_user' => Auth::user()->user
+		]);
 
 		return response()->json([
 			'success' => true,

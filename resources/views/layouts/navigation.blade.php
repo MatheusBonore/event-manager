@@ -15,10 +15,8 @@
 					<x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
 						{{ __('Dashboard') }}
 					</x-nav-link>
-				</div>
 
-				<div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-					<x-nav-link :href="route('dashboard.events')" :active="request()->routeIs('dashboard.events')">
+					<x-nav-link :href="route('events')" :active="request()->routeIs('events')">
 						{{ __('Events') }}
 					</x-nav-link>
 				</div>
@@ -76,6 +74,10 @@
 			<x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
 				{{ __('Dashboard') }}
 			</x-responsive-nav-link>
+
+			<x-responsive-nav-link :href="route('events')" :active="request()->routeIs('events')">
+				{{ __('Events') }}
+			</x-responsive-nav-link>
 		</div>
 
 		<!-- Responsive Settings Options -->
@@ -94,9 +96,7 @@
 				<form method="POST" action="{{ route('logout') }}">
 					@csrf
 
-					<x-responsive-nav-link :href="route('logout')"
-							onclick="event.preventDefault();
-										this.closest('form').submit();">
+					<x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
 						{{ __('Log Out') }}
 					</x-responsive-nav-link>
 				</form>

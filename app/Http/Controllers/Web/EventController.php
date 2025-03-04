@@ -2,40 +2,46 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Requests\Web\StoreEventRequest;
 use App\Models\Event;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class EventController extends Controller
 {
-	public function index(): View
+	public function index(Request $request): View
 	{
-		$events = Event::with(['creator', 'attendees'])->get()->map(function ($event) {
-			// Gerar as iniciais dos nomes
+		$creator = $request->query('creator');
 
+		$events = Event::with(['creator', 'attendees'])->when($creator, function ($query) use ($creator) {
+			return $query->where('users_user', $creator);
+		})->get()->map(function ($event) {
+			// Gerar as iniciais dos nomes
 			$parts = explode(" ", $event->creator->name);
 
 			$initials = "";
 			foreach ($parts as $part) {
 				$initials .= strtoupper($part[0]);
 			}
-			
+
 			$event->creator->initials_name = $initials;
-			
+
 			$event->attendees->transform(function ($user) {
 				$parts = explode(" ", $user->name);
-		
+
 				$initials = "";
 				foreach ($parts as $part) {
 					$initials .= strtoupper($part[0]);
 				}
-		
+
 				$user->initials_name = $initials;
 				return $user;
 			});
 
 			// Gerar a descrição truncada
-
 			$length = 30;
 
 			// Encontrar a última ocorrência do espaço dentro do limite de tamanho
@@ -52,7 +58,7 @@ class EventController extends Controller
 			// Calcular as datas do evento
 			$startDate = Carbon::parse($event->start_time);
 			$endDate = Carbon::parse($event->end_time);
-		
+
 			if ($startDate->isPast()) {
 				// Evento já passou
 				$event->event_status = 'Evento já passou';
@@ -62,7 +68,7 @@ class EventController extends Controller
 				$days = floor($durationInHours / 24);
 				$hours = $durationInHours % 24;
 				$minutes = $startDate->diffInMinutes($endDate) % 60;
-			
+
 				// Construir a string da duração do evento
 				$duration = "";
 
@@ -91,5 +97,17 @@ class EventController extends Controller
 		return view('event.events', [
 			'events' => $events
 		]);
+	}
+
+	public function store(StoreEventRequest $request): JsonResponse
+	{
+		$event = array_merge($request->validated(), [
+			'users_user' => Auth::user()->user
+		]);
+
+		return response()->json([
+			'success' => true,
+			'event' => Event::create($event)
+		], 201);
 	}
 }
