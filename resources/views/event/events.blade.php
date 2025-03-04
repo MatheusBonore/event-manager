@@ -6,7 +6,7 @@
 	</x-slot>
 
 	<div class="py-12">
-		<div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+		<div class="max-w-7xl mx-auto sm:px-6 lg:px-8 px-3">
 			<caption class="p-5 text-lg font-semibold text-left">
 				<p class="text-gray-900 whitespace-nowrap dark:text-white">Our Events</p>
 				<p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">Browse the list of events available in our system. Stay updated on locations, capacities, and statuses to plan your participation efficiently.</p>
@@ -61,10 +61,14 @@
 
 								<tr onclick="openModalEvent({{ json_encode($event) }})" class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 ' : ' bg-white border-b-2 dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }} cursor-pointer">
 									<th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-										<x-event.avatar class="relative cursor-pointer" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['creator']['initials_name']" />
+										<x-event.avatar class="relative cursor-pointer {{ ($event['users_user'] === $user['user']) ? 'ring-2 ring-indigo-300 dark:ring-indigo-500' : '' }}" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['creator']['initials_name']" />
 
 										<x-event.tooltip :id="'tooltip-avatar-' . $index_event">
-											{{ $event['creator']['name'] }}
+											@if ($event['users_user'] === $user['user'])
+												You
+											@else
+												{{ $event['creator']['name'] }}
+											@endif
 										</x-event.tooltip>
 
 										<div class="ps-3">
@@ -85,20 +89,24 @@
 												$names = [];
 											@endphp
 
-											@foreach ($event['attendees'] as $index_user => $user)
+											@foreach ($event['attendees'] as $index_attendees => $attendees)
 												@php
-													$id_tooltip = md5($index_event . '-' . $index_user);
+													$id_tooltip = md5($index_event . '-' . $index_attendees);
 												@endphp
 
-												@if ($index_user < 5)
-													<x-event.avatar data-tooltip-target="{{ $id_tooltip }}" data-tooltip-placement="bottom" class="relative z-[{{ $index_user + 10 }}] cursor-pointer" :value="$user['initials_name']" />
+												@if ($index_attendees < 5)
+													<x-event.avatar data-tooltip-target="{{ $id_tooltip }}" data-tooltip-placement="bottom" class="relative z-[{{ $index_attendees + 10 }}] cursor-pointer {{ ($attendees['user'] === $user['user']) ? 'ring-2 ring-indigo-300 dark:ring-indigo-500' : '' }}" :value="$attendees['initials_name']" />
 
 													<x-event.tooltip :id="$id_tooltip">
-														{{ $user['name'] }}
+														@if ($attendees['user'] === $user['user'])
+															You
+														@else
+															{{ $attendees['name'] }}
+														@endif
 													</x-event.tooltip>
 												@else
 													@php
-														array_push($names, $user['name']);
+														array_push($names, $attendees['name']);
 													@endphp
 												@endif
 											@endforeach

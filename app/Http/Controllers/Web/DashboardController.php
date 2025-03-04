@@ -28,9 +28,21 @@ class DashboardController extends Controller
 
 		$created_events = Event::where('users_user', Auth::id())->count();
 
+		$open_events = Event::where('status', 'open')->count();
+		$closed_events = Event::where('status', 'closed')->count();
+		$canceled_events = Event::where('status', 'canceled')->count();
+
+		$attending_events = Event::whereHas('attendees', function ($query) {
+			$query->where('users_user', Auth::user()->user);
+		})->count();
+
 		return view('dashboard', [
 			'user' => $user,
 			'created_events' => $created_events,
+			'open_events' => $open_events,
+			'closed_events'=> $closed_events,
+			'canceled_events'=> $canceled_events,
+			'attending_events' => $attending_events
 		]);
 	}
 }

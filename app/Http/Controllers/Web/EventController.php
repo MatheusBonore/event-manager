@@ -15,9 +15,14 @@ class EventController extends Controller
 	public function index(Request $request): View
 	{
 		$creator = $request->query('creator');
+		$attendees = $request->query('attendees');
 
 		$events = Event::with(['creator', 'attendees'])->when($creator, function ($query) use ($creator) {
 			return $query->where('users_user', $creator);
+		})->when($attendees, function ($query) use ($attendees) {
+			return $query->whereHas('attendees', function ($query) use ($attendees) {
+				return $query->where('users_user', $attendees);
+			});
 		})->get()->map(function ($event) {
 			// Gerar as iniciais dos nomes
 			$parts = explode(" ", $event->creator->name);
@@ -94,7 +99,24 @@ class EventController extends Controller
 			return $event;
 		});
 
+		$parts = explode(" ", Auth::user()->name);
+
+		$initials = "";
+		foreach ($parts as $part) {
+			$initials .= strtoupper($part[0]);
+		}
+
+		$initials_name = $initials;
+
+		$user = [
+			'user' => Auth::user()->user,
+			'name' => Auth::user()->name,
+			'initials_name' => $initials_name,
+			'email' => Auth::user()->email
+		];
+
 		return view('event.events', [
+			'user' => $user,
 			'events' => $events
 		]);
 	}
