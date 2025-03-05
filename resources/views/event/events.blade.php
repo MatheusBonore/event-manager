@@ -21,6 +21,7 @@
 									Title
 								</th>
 								<th scope="col" class="px-6 py-3"></th>
+								<th scope="col" class="px-6 py-3"></th>
 								<th scope="col" class="px-6 py-3">
 									Location
 								</th>
@@ -83,6 +84,17 @@
 											<div class="font-normal text-gray-500">{{ $event['event_status'] }}</div>
 										</div>
 									</th>
+									<td class="px-6 py-4">
+										@php
+											$isParticipating = $event['attendees']->filter(function($attendee) use ($user) {
+												return isset($attendee['user']) && $attendee['user'] == $user['user'];
+											})->isNotEmpty();
+										@endphp
+
+										@if ($isParticipating)
+											Participating
+										@endif
+									</td>
 									<td class="px-6 py-4" nowrap>
 										<div class="flex -space-x-4 rtl:space-x-reverse">
 											@php

@@ -23,7 +23,8 @@ class DashboardController extends Controller
 			'user' => Auth::user()->user,
 			'name' => Auth::user()->name,
 			'initials_name' => $initials_name,
-			'email' => Auth::user()->email
+			'email' => Auth::user()->email,
+			'role' => Auth::user()->role
 		];
 
 		$created_events = Event::where('users_user', Auth::id())->count();
