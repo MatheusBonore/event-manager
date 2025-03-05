@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Requests\Web\StoreEventRequest;
+use App\Http\Requests\Web\UpdateEventRequest;
 use App\Models\Event;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -157,7 +158,7 @@ class EventController extends Controller
 		], 201);
 	}
 
-	public function participate($event): JsonResponse
+	public function participate(string $event): JsonResponse
 	{
 		$event = Event::findOrFail($event);
 		$user = auth()->user();
@@ -177,7 +178,7 @@ class EventController extends Controller
 		], 200);
 	}
 
-	public function leave($event): JsonResponse
+	public function leave(string $event): JsonResponse
 	{
 		$event = Event::findOrFail($event);
 		$user = auth()->user();
@@ -195,5 +196,26 @@ class EventController extends Controller
 			'success' => true,
 			'message' => 'You left the event'
 		], 200);
+	}
+
+	public function update(UpdateEventRequest $request, string $event): JsonResponse
+	{
+		$event = Event::find($event);
+		if (!$event) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Event not found'
+			], 404);
+		}
+
+		$data = array_merge($request->validated(), [
+			'users_user' => Auth::user()->user
+		]);
+
+		$event->update($data);
+		return response()->json([
+			'success' => true,
+			'data' => $event
+		]);
 	}
 }

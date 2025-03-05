@@ -291,11 +291,48 @@
 				})
 				.catch(error => console.error('An error occurred while leaving the event.'));
 			}
+		
+			document.getElementById('event-form').addEventListener('submit', function(event) {
+				event.preventDefault();
+				
+				document.getElementById('error-details-modal').innerHTML = '';
+
+				const formData = new FormData(this);
+				const event_id = document.getElementById("event").value;
+
+				fetch(`/events/${event_id}`, {
+					method: 'POST',
+					headers: {
+						'Accept': 'application/json',
+						'X-CSRF-TOKEN': '{{ csrf_token() }}'
+					},
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.errors) {
+						let errorHtml = '<ul>';
+						for (let field in data.errors) {
+							if (data.errors.hasOwnProperty(field)) {
+								data.errors[field].forEach(errorMessage => {
+									errorHtml += `<li>${errorMessage}</li>`;
+								});
+							}
+						}
+						errorHtml += '</ul>';
+						document.getElementById('error-details-modal').innerHTML = errorHtml;
+					} else {
+						window.location.href = `{{ url('/events?event=${event_id}') }}`;
+					}
+				})
+				.catch(error => console.error('An error occurred while editing the event.'));
+			});
 		</script>
 	@endpush
 
 	<x-event.modal id="more-details-modal" name="more-details-modal" title="More event details" focusable>
-		<form class="p-4 md:p-5">
+		<form method="post" class="p-4 md:p-5" id="event-form">
+			@method('put')
 			@csrf
 
 			<input type="hidden" name="event" id="event" value="" />
@@ -353,7 +390,7 @@
 					<button type="button" onclick="leaveEvent()" id="btn-leave-more-details-modal" class="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Leave</button>
 				</div>
 
-				<button type="button" id="btn-save-more-details-modal" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save changes</button>
+				<button type="submit" id="btn-save-more-details-modal" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save changes</button>
 			</div>
 		</form>
 	</x-event.modal>

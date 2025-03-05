@@ -53,7 +53,7 @@ class EventController extends Controller
 		], 201);
 	}
 
-	public function show(string $id, Request $request): JsonResponse
+	public function show(string $event, Request $request): JsonResponse
 	{
 		$allowedIncludes = ['creator', 'attendees'];
 
@@ -73,7 +73,7 @@ class EventController extends Controller
 			], 400);
 		}
 
-		$event = Event::with($validIncludes)->find($id);
+		$event = Event::with($validIncludes)->find($event);
 		if (!$event) {
 			return response()->json([
 				'success' => false,
@@ -87,9 +87,9 @@ class EventController extends Controller
 		]);
 	}
 
-	public function update(UpdateEventRequest $request, string $id): JsonResponse
+	public function update(UpdateEventRequest $request, string $event): JsonResponse
 	{
-		$event = Event::find($id);
+		$event = Event::find($event);
 		if (!$event) {
 			return response()->json([
 				'success' => false,
@@ -104,9 +104,9 @@ class EventController extends Controller
 		]);
 	}
 
-	public function destroy(string $id): JsonResponse
+	public function destroy(string $event): JsonResponse
 	{
-		$event = Event::find($id);
+		$event = Event::find($event);
 		if (!$event) {
 			return response()->json([
 				'success' => false,

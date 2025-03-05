@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
 	Route::middleware('admin')->group(function() {
 		Route::post('/events', [EventController::class, 'store'])
 			->name('events.store');
+
+		Route::put('events/{event}', [EventController::class, 'update'])
+			->name('events.update');
 	});
 
 	Route::post('/events/{event}/participate', [EventController::class, 'participate'])
