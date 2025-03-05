@@ -24,101 +24,125 @@ class EventController extends Controller
 				return $query->where('users_user', $attendees);
 			});
 		})->get()->map(function ($event) {
-			// Gerar as iniciais dos nomes
-			$parts = explode(" ", $event->creator->name);
-
-			$initials = "";
-			foreach ($parts as $part) {
-				$initials .= strtoupper($part[0]);
-			}
-
-			$event->creator->initials_name = $initials;
-
-			$event->attendees->transform(function ($user) {
-				$parts = explode(" ", $user->name);
-
-				$initials = "";
-				foreach ($parts as $part) {
-					$initials .= strtoupper($part[0]);
-				}
-
-				$user->initials_name = $initials;
-				return $user;
-			});
-
-			// Gerar a descrição truncada
-			$length = 30;
-
-			// Encontrar a última ocorrência do espaço dentro do limite de tamanho
-			$pos = strrpos(substr($event->description . ' ', 0, $length), ' ');
-
-			$event->truncated_description = strlen($event->description) > $length
-				? substr($event->description, 0, $pos - 1) . '...'
-				: $event->description;
-
-
-			// Formatar data de inicio do evento
-			$event->start_date_formatted = Carbon::parse($event->start_time)->format('l, d F Y H:i');
-
-			// Calcular as datas do evento
-			$startDate = Carbon::parse($event->start_time);
-			$endDate = Carbon::parse($event->end_time);
-
-			if ($startDate->isPast()) {
-				// Evento já passou
-				$event->event_status = 'Evento já passou';
-			} else {
-				// Calcular a duração do evento
-				$durationInHours = $startDate->diffInHours($endDate);
-				$days = floor($durationInHours / 24);
-				$hours = $durationInHours % 24;
-				$minutes = $startDate->diffInMinutes($endDate) % 60;
-
-				// Construir a string da duração do evento
-				$duration = "";
-
-				if ($days > 0) {
-					$duration .= "{$days} " . ($days == 1 ? "day" : "days");
-				}
-
-				if ($hours > 0) {
-					$duration .= ($duration ? " e " : "") . "{$hours} " . ($hours == 1 ? "hour" : "hours");
-				}
-
-				if ($minutes > 0 || ($days == 0 && $hours == 0)) {
-					$duration .= ($duration ? " e " : "") . "{$minutes} " . ($minutes == 1 ? "minute" : "minutes");
-				}
-
-				if (empty($duration)) {
-					$duration = "Less than 1 minute";
-				}
-
-				$event->event_status = $duration;
-			}
-
+			$this->processEvent($event);
 			return $event;
 		});
 
-		$parts = explode(" ", Auth::user()->name);
+		// Carregar evento
+		$event_id = $request->query('event');
+		$event = $event_id
+			? Event::with(['creator', 'attendees'])->when($creator, function ($query) use ($creator) {
+				return $query->where('users_user', $creator);
+			})->when($attendees, function ($query) use ($attendees) {
+				return $query->whereHas('attendees', function ($query) use ($attendees) {
+					return $query->where('users_user', $attendees);
+				});
+			})->find($event_id) : [];
 
+		if ($event) {
+			$this->processEvent($event);
+		}
+
+		$user = $this->getUserInfo();
+
+		return view('event.events', [
+			'user' => $user,
+			'event_more' => $event,
+			'events' => $events
+		]);
+	}
+
+	private function processEvent($event)
+	{
+		// Gerar as iniciais do criador
+		$event->creator->initials_name = $this->generateInitials($event->creator->name);
+
+		// Gerar as iniciais dos participantes
+		$event->attendees->transform(function ($user) {
+			$user->initials_name = $this->generateInitials($user->name);
+			return $user;
+		});
+
+		// Gerar a descrição truncada
+		$event->truncated_description = $this->truncateDescription($event->description);
+
+		// Formatar data de inicio do evento
+		$event->start_date_formatted = Carbon::parse($event->start_time)->format('l, d F Y H:i');
+
+		// Calcular as datas do evento
+		$this->calculateEventDuration($event);
+	}
+
+	private function generateInitials($name)
+	{
+		$parts = explode(" ", $name);
+		$initials = "";
+		foreach ($parts as $part) {
+			$initials .= strtoupper($part[0]);
+		}
+		return $initials;
+	}
+
+	private function truncateDescription($description, $length = 30)
+	{
+		$pos = strrpos(substr($description . ' ', 0, $length), ' ');
+		return strlen($description) > $length
+			? substr($description, 0, $pos - 1) . '...'
+			: $description;
+	}
+
+	private function calculateEventDuration($event)
+	{
+		$startDate = Carbon::parse($event->start_time);
+		$endDate = Carbon::parse($event->end_time);
+
+		if ($startDate->isPast()) {
+			// Evento já passou
+			$event->event_status = 'Event has already passed';
+		} else {
+			// Calcular a duração do evento
+			$durationInHours = $startDate->diffInHours($endDate);
+			$days = floor($durationInHours / 24);
+			$hours = $durationInHours % 24;
+			$minutes = $startDate->diffInMinutes($endDate) % 60;
+
+			// Construir a string da duração do evento
+			$duration = "";
+
+			if ($days > 0) {
+				$duration .= "{$days} " . ($days == 1 ? "day" : "days");
+			}
+
+			if ($hours > 0) {
+				$duration .= ($duration ? " e " : "") . "{$hours} " . ($hours == 1 ? "hour" : "hours");
+			}
+
+			if ($minutes > 0 || ($days == 0 && $hours == 0)) {
+				$duration .= ($duration ? " e " : "") . "{$minutes} " . ($minutes == 1 ? "minute" : "minutes");
+			}
+
+			if (empty($duration)) {
+				$duration = "Less than 1 minute";
+			}
+
+			$event->event_status = $duration;
+		}
+	}
+
+	private function getUserInfo()
+	{
+		$parts = explode(" ", Auth::user()->name);
 		$initials = "";
 		foreach ($parts as $part) {
 			$initials .= strtoupper($part[0]);
 		}
 
-		$initials_name = $initials;
-
-		$user = [
+		return [
 			'user' => Auth::user()->user,
 			'name' => Auth::user()->name,
-			'initials_name' => $initials_name,
+			'initials_name' => $initials,
 			'email' => Auth::user()->email
 		];
-
-		return view('event.events', [
-			'user' => $user,
-			'events' => $events
-		]);
 	}
 
 	public function store(StoreEventRequest $request): JsonResponse
@@ -131,5 +155,45 @@ class EventController extends Controller
 			'success' => true,
 			'event' => Event::create($event)
 		], 201);
+	}
+
+	public function participate($event): JsonResponse
+	{
+		$event = Event::findOrFail($event);
+		$user = auth()->user();
+
+		if ($event->attendees->contains($user->user)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'You are already participating in this event.'
+			], 400);
+		}
+
+		$event->attendees()->attach($user->user);
+
+		return response()->json([
+			'success' => true,
+			'message' => 'You are now participating in the event.'
+		], 200);
+	}
+
+	public function leave($event): JsonResponse
+	{
+		$event = Event::findOrFail($event);
+		$user = auth()->user();
+
+		if (!$event->attendees->contains($user->user)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'You are not participating in this event.'
+			], 400);
+		}
+
+		$event->attendees()->detach($user->user);
+
+		return response()->json([
+			'success' => true,
+			'message' => 'You left the event'
+		], 200);
 	}
 }

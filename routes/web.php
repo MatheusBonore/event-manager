@@ -33,6 +33,12 @@ Route::middleware('auth')->group(function () {
 		Route::post('/events', [EventController::class, 'store'])
 			->name('events.store');
 	});
+
+	Route::post('/events/{event}/participate', [EventController::class, 'participate'])
+		->name('events.participate');
+
+	Route::post('/events/{event}/leave', [EventController::class, 'leave'])
+		->name('events.leave');
 });
 
 require __DIR__ . '/auth.php';

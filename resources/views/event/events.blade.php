@@ -59,7 +59,7 @@
 									}
 								@endphp
 
-								<tr onclick="openModalEvent({{ json_encode($event) }})" class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 ' : ' bg-white border-b-2 dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }} cursor-pointer">
+								<tr onclick="openModalEvent({{ json_encode(['user' => $user, 'event' => $event]) }})" class="{{ $loop->last ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600 ' : ' bg-white border-b-2 dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600' }} cursor-pointer">
 									<th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
 										<x-event.avatar class="relative cursor-pointer {{ ($event['users_user'] === $user['user']) ? 'ring-2 ring-indigo-300 dark:ring-indigo-500' : '' }}" data-tooltip-target="tooltip-avatar-{{ $index_event }}" data-tooltip-placement="bottom" :value="$event['creator']['initials_name']" />
 
@@ -151,6 +151,15 @@
 
 	@push('scripts')
 		<script>
+			window.onload = function() {
+				const userData = @js($user);
+				const eventData = @js($event_more);
+				
+				if (eventData && Object.keys(eventData).length > 0) {
+					openModalEvent({ user: userData, event: eventData });
+				}
+			};
+
 			function formatDateTime(dateTime) {
 				if (!dateTime) return "";
 
@@ -164,30 +173,121 @@
 				return `${year}-${month}-${day}T${hours}:${minutes}`;
 			}
 
-			function openModalEvent(event) {
-				console.log(event);
+			function openModalEvent(data) {
 				// Preencher os campos do modal
-				document.getElementById("avatar-more-details-modal").innerHTML = event.creator.initials_name || "";
+				document.getElementById("avatar-more-details-modal").innerHTML = data.event.creator.initials_name || "";
 
-				document.getElementById("name-more-details-modal").innerHTML = event.creator.name || "";
-				document.getElementById("start-date-formatted-more-details-modal").innerHTML = event.start_date_formatted || "";
-				document.getElementById("event-status-more-details-modal").innerHTML = event.event_status || "";
+				document.getElementById("name-more-details-modal").innerHTML = data.event.creator.name || "";
+				document.getElementById("start-date-formatted-more-details-modal").innerHTML = data.event.start_date_formatted || "";
+				document.getElementById("event-status-more-details-modal").innerHTML = data.event.event_status || "";
 
-				document.getElementById("title").value = event.title || "";
-				document.getElementById("description").value = event.description || "";
-				document.getElementById("start_time").value = formatDateTime(event.start_time) || "";
-				document.getElementById("end_time").value = formatDateTime(event.end_time) || "";
-				document.getElementById("location").value = event.location || "";
-				document.getElementById("capacity").value = event.capacity || "";
-				document.getElementById("status").value = event.status || "open";
+				document.getElementById("event").value = data.event.event || "";
+
+				document.getElementById("title").disabled = true;
+				document.getElementById("description").disabled = true;
+				document.getElementById("start_time").disabled = true;
+				document.getElementById("end_time").disabled = true;
+				document.getElementById("location").disabled = true;
+				document.getElementById("capacity").disabled = true;
+				document.getElementById("status").disabled = true;
+
+				document.getElementById("title").value = data.event.title || "";
+				document.getElementById("description").value = data.event.description || "";
+				document.getElementById("start_time").value = formatDateTime(data.event.start_time) || "";
+				document.getElementById("end_time").value = formatDateTime(data.event.end_time) || "";
+				document.getElementById("location").value = data.event.location || "";
+				document.getElementById("capacity").value = data.event.capacity || "";
+				document.getElementById("status").value = data.event.status || "open";
+
+				if (data.user.user == data.event.users_user) {
+					document.getElementById("title").disabled = false;
+					document.getElementById("description").disabled = false;
+					document.getElementById("start_time").disabled = false;
+					document.getElementById("end_time").disabled = false;
+					document.getElementById("location").disabled = false;
+					document.getElementById("capacity").disabled = false;
+					document.getElementById("status").disabled = false;
+				}
+
+				document.getElementById('btn-participate-more-details-modal').style.display = 'none';
+				document.getElementById('btn-participate-more-details-modal').disabled = true;
+
+				document.getElementById('btn-leave-more-details-modal').style.display = 'none';
+				document.getElementById('btn-leave-more-details-modal').disabled = true;
+
+				if (data.event.attendees.some(attendee => attendee.user === data.user.user)) {
+					document.getElementById('btn-leave-more-details-modal').style.display = 'block';
+					document.getElementById('btn-leave-more-details-modal').disabled = false;
+				} else {
+					document.getElementById('btn-participate-more-details-modal').style.display = 'block';
+					document.getElementById('btn-participate-more-details-modal').disabled = false;
+				}
+
+				document.getElementById('btn-save-more-details-modal').style.display = 'block';
+				document.getElementById('btn-save-more-details-modal').disabled = false;
+
+				if (data.user.user != data.event.users_user) {
+					document.getElementById('btn-save-more-details-modal').style.display = 'none';
+					document.getElementById('btn-save-more-details-modal').disabled = true;
+				}
 
 				window.dispatchEvent(new CustomEvent('open-modal', { detail: 'more-details-modal' }));
+			}
+
+			function participateEvent() {
+				const event = document.getElementById("event").value;
+
+				document.getElementById('error-details-modal').innerHTML = '';
+
+				fetch(`/events/${event}/participate`, {
+					method: 'POST',
+					headers: {
+						'Accept': 'application/json',
+						'X-CSRF-TOKEN': '{{ csrf_token() }}'
+					}
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success == false) {
+						document.getElementById('error-details-modal').innerHTML = data.message;
+					} else {
+						window.location.href = `{{ url('/events?event=${event}') }}`;
+					}
+				})
+				.catch(error => console.error('An error occurred while attending the event.'));
+			}
+
+			function leaveEvent() {
+				const event = document.getElementById("event").value;
+
+				document.getElementById('error-details-modal').innerHTML = '';
+
+				fetch(`/events/${event}/leave`, {
+					method: 'POST',
+					headers: {
+						'Accept': 'application/json',
+						'X-CSRF-TOKEN': '{{ csrf_token() }}'
+					}
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success == false) {
+						document.getElementById('error-details-modal').innerHTML = data.message;
+					} else {
+						window.location.href = `{{ url('/events?event=${event}') }}`;
+					}
+				})
+				.catch(error => console.error('An error occurred while leaving the event.'));
 			}
 		</script>
 	@endpush
 
 	<x-event.modal id="more-details-modal" name="more-details-modal" title="More event details" focusable>
 		<form class="p-4 md:p-5">
+			@csrf
+
+			<input type="hidden" name="event" id="event" value="" />
+
 			<div class="flex items-center gap-1 h-full mb-2">
 				<x-event.avatar class="relative cursor-pointer" name="avatar-more-details-modal" :value="'AM'" />
 
@@ -231,6 +331,17 @@
 						<option value="canceled">Canceled</option>
 					</select>
 				</div>
+			</div>
+
+			<x-text-error id="error-details-modal" class="mb-4"></x-text-error>
+
+			<div class="flex justify-between">
+				<div>
+					<button type="button" onclick="participateEvent()" id="btn-participate-more-details-modal" class="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Participate</button>
+					<button type="button" onclick="leaveEvent()" id="btn-leave-more-details-modal" class="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Leave</button>
+				</div>
+
+				<button type="button" id="btn-save-more-details-modal" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save changes</button>
 			</div>
 		</form>
 	</x-event.modal>
