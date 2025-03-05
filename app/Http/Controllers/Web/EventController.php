@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Web;
 use App\Http\Requests\Web\StoreEventRequest;
 use App\Http\Requests\Web\UpdateEventRequest;
 use App\Models\Event;
+use App\Notifications\EventCancellationNotification;
+use App\Notifications\EventParticipationNotification;
+use App\Traits\GeneratesConfirmationToken;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,32 +16,46 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
+	use GeneratesConfirmationToken;
+
 	public function index(Request $request): View
 	{
 		$creator = $request->query('creator');
 		$attendees = $request->query('attendees');
 
-		$events = Event::with(['creator', 'attendees'])->when($creator, function ($query) use ($creator) {
-			return $query->where('users_user', $creator);
-		})->when($attendees, function ($query) use ($attendees) {
-			return $query->whereHas('attendees', function ($query) use ($attendees) {
-				return $query->where('users_user', $attendees);
+		// ->where('status', 'open')
+
+		$events = Event::with(['creator', 'confirmedAttendees', 'unconfirmedAttendees'])
+			->when($creator, function ($query) use ($creator) {
+				return $query->where('users_user', $creator);
+			})
+			->when($attendees, function ($query) use ($attendees) {
+				return $query->whereHas('confirmedAttendees', function ($query) use ($attendees) {
+					return $query->where('users_user', $attendees);
+				})->orWhereHas('unconfirmedAttendees', function ($query) use ($attendees) {
+					return $query->where('users_user', $attendees);
+				});
+			})
+			->get()
+			->map(function ($event) {
+				$this->processEvent($event);
+				return $event;
 			});
-		})->get()->map(function ($event) {
-			$this->processEvent($event);
-			return $event;
-		});
 
 		// Carregar evento
 		$event_id = $request->query('event');
 		$event = $event_id
-			? Event::with(['creator', 'attendees'])->when($creator, function ($query) use ($creator) {
-				return $query->where('users_user', $creator);
-			})->when($attendees, function ($query) use ($attendees) {
-				return $query->whereHas('attendees', function ($query) use ($attendees) {
-					return $query->where('users_user', $attendees);
-				});
-			})->find($event_id) : [];
+			? Event::with(['creator', 'confirmedAttendees', 'unconfirmedAttendees'])
+				->when($creator, function ($query) use ($creator) {
+					return $query->where('users_user', $creator);
+				})
+				->when($attendees, function ($query) use ($attendees) {
+					return $query->whereHas('confirmedAttendees', function ($query) use ($attendees) {
+						return $query->where('users_user', $attendees);
+					})->orWhereHas('unconfirmedAttendees', function ($query) use ($attendees) {
+						return $query->where('users_user', $attendees);
+					});
+				})->find($event_id) : [];
 
 		if ($event) {
 			$this->processEvent($event);
@@ -170,7 +187,10 @@ class EventController extends Controller
 			], 400);
 		}
 
-		$event->attendees()->attach($user->user);
+		$event->attendees()->attach($user->user, ['confirmed' => false]);
+
+		// Enviar notificação
+		$user->notify(new EventParticipationNotification($event, $user));
 
 		return response()->json([
 			'success' => true,
@@ -190,7 +210,10 @@ class EventController extends Controller
 			], 400);
 		}
 
-		$event->attendees()->detach($user->user);
+		// $event->attendees()->detach($user->user);
+
+		// Enviar notificação de cancelamento
+		$user->notify(new EventCancellationNotification($event, $user));
 
 		return response()->json([
 			'success' => true,
@@ -217,5 +240,40 @@ class EventController extends Controller
 			'success' => true,
 			'data' => $event
 		]);
+	}
+
+	public function confirmAction($event, $action, $token): JsonResponse
+	{
+		$event = Event::findOrFail($event);
+		$user = auth()->user();
+
+		if (!$this->verifyConfirmationToken($user->user, $event->event, $action, $token)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Invalid or expired token.
+			'
+			], 400);
+		}
+
+		if ($action === 'participation') {
+			$event->attendees()->updateExistingPivot($user->user, ['confirmed' => true]);
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Participation confirmed.'
+			]);
+		} elseif ($action === 'cancellation') {
+			$event->attendees()->detach($user->user);
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Cancellation confirmed.'
+			]);
+		}
+
+		return response()->json([
+			'success' => false,
+			'message' => 'Invalid action.'
+		], 400);
 	}
 }

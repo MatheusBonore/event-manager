@@ -15,6 +15,7 @@ return new class extends Migration {
 			$table->foreignUuid('events_event')->constrained('events', 'event')->cascadeOnDelete();
 
 			$table->primary(['users_user', 'events_event']);
+			$table->boolean('confirmed')->default(false);
 
 			$table->timestamp('created_at')->useCurrent();
 			$table->timestamp('updated_at')->nullable();

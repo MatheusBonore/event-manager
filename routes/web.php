@@ -9,10 +9,6 @@ Route::get('/', function () {
 	return view('welcome');
 });
 
-// Route::get('/dashboard', function () {
-// 	return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
 	Route::get('/dashboard', [DashboardController::class, 'index'])
 		->name('dashboard');
@@ -43,5 +39,7 @@ Route::middleware('auth')->group(function () {
 	Route::post('/events/{event}/leave', [EventController::class, 'leave'])
 		->name('events.leave');
 });
+
+Route::get('/events/{event}/confirm/{action}/{token}', [EventController::class, 'confirmAction']);
 
 require __DIR__ . '/auth.php';

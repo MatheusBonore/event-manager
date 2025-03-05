@@ -29,13 +29,13 @@ class Event extends Model
 		'end_time',
 		'location',
 		'capacity',
-		'status',
+		'status'
 	];
 
 	protected array $dates = [
 		'created_at',
 		'updated_at',
-		'deleted_at',
+		'deleted_at'
 	];
 
 	protected $hidden = [];
@@ -48,15 +48,28 @@ class Event extends Model
 
 	protected $casts = [
 		'start_time' => 'datetime',
-		'end_time' => 'datetime',
+		'end_time' => 'datetime'
 	];
 
-	public function creator() {
+	public function creator()
+	{
 		return $this->belongsTo(User::class, 'users_user', 'user');
 	}
 
 	public function attendees()
 	{
 		return $this->belongsToMany(User::class, 'users_has_events', 'events_event', 'users_user');
+	}
+
+	public function confirmedAttendees()
+	{
+		return $this->belongsToMany(User::class, 'users_has_events', 'events_event', 'users_user')
+			->wherePivot('confirmed', true);
+	}
+
+	public function unconfirmedAttendees()
+	{
+		return $this->belongsToMany(User::class, 'users_has_events', 'events_event', 'users_user')
+			->wherePivot('confirmed', false);
 	}
 }

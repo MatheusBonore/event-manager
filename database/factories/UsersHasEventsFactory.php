@@ -21,6 +21,7 @@ class UsersHasEventsFactory extends Factory
 		return [
 			'users_user' => $this->faker->randomElement(User::all()->pluck('user')->toArray() ?? User::factory()->create()->user),
 			'events_event' => $this->faker->randomElement(Event::all()->pluck('event')->toArray() ?? Event::factory()->create()->event),
+			'confirmed' => true,
 		];
 	}
 }

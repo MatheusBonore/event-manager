@@ -86,13 +86,19 @@
 									</th>
 									<td class="px-6 py-4">
 										@php
-											$isParticipating = $event['attendees']->filter(function($attendee) use ($user) {
+											$isConfirmed = $event['confirmedAttendees']->contains(function ($attendee) use ($user) {
 												return isset($attendee['user']) && $attendee['user'] == $user['user'];
-											})->isNotEmpty();
+											});
+
+											$isWaitingConfirmation = $event['unconfirmedAttendees']->contains(function ($attendee) use ($user) {
+												return isset($attendee['user']) && $attendee['user'] == $user['user'];
+											});
 										@endphp
 
-										@if ($isParticipating)
-											Participating
+										@if ($isConfirmed)
+											Participating (Confirmed)
+										@elseif ($isWaitingConfirmation)
+											Waiting for Confirmation
 										@endif
 									</td>
 									<td class="px-6 py-4" nowrap>
@@ -187,6 +193,9 @@
 
 			function openModalEvent(data) {
 				// Preencher os campos do modal
+				document.getElementById('error-details-modal').innerHTML = '';
+				document.getElementById('warning-details-modal').innerHTML = '';
+
 				document.getElementById("avatar-more-details-modal").innerHTML = data.event.creator.initials_name || "";
 
 				document.getElementById("name-more-details-modal").innerHTML = data.event.creator.name || "";
@@ -227,12 +236,20 @@
 				document.getElementById('btn-leave-more-details-modal').style.display = 'none';
 				document.getElementById('btn-leave-more-details-modal').disabled = true;
 
-				if (data.event.attendees.some(attendee => attendee.user === data.user.user)) {
+				const waiting_for_confirmation = data.event.unconfirmed_attendees.some(unconfirmed_attendee => unconfirmed_attendee.user === data.user.user);
+
+				if (data.event.attendees.some(attendee => attendee.user === data.user.user) && !waiting_for_confirmation) {
 					document.getElementById('btn-leave-more-details-modal').style.display = 'block';
 					document.getElementById('btn-leave-more-details-modal').disabled = false;
 				} else {
-					document.getElementById('btn-participate-more-details-modal').style.display = 'block';
-					document.getElementById('btn-participate-more-details-modal').disabled = false;
+					if (data.event.capacity > data.event.attendees.length) {
+						document.getElementById('btn-participate-more-details-modal').style.display = 'block';
+						document.getElementById('btn-participate-more-details-modal').disabled = false;
+
+						if (waiting_for_confirmation) {
+							document.getElementById('warning-details-modal').innerHTML = 'We are waiting for your confirmation.';
+						}
+					}
 				}
 
 				document.getElementById('btn-save-more-details-modal').style.display = 'block';
@@ -250,6 +267,7 @@
 				const event = document.getElementById("event").value;
 
 				document.getElementById('error-details-modal').innerHTML = '';
+				document.getElementById('warning-details-modal').innerHTML = '';
 
 				fetch(`/events/${event}/participate`, {
 					method: 'POST',
@@ -263,7 +281,13 @@
 					if (data.success == false) {
 						document.getElementById('error-details-modal').innerHTML = data.message;
 					} else {
-						window.location.href = `{{ url('/events?event=${event}') }}`;
+						// window.location.href = `{{ url('/events?event=${event}') }}`;
+
+						document.getElementById('btn-participate-more-details-modal').style.display = 'none';
+						document.getElementById('btn-participate-more-details-modal').disabled = true;
+						
+						document.getElementById('warning-details-modal').innerHTML = 'We send a confirmation email to you.';
+						
 					}
 				})
 				.catch(error => console.error('An error occurred while attending the event.'));
@@ -273,6 +297,7 @@
 				const event = document.getElementById("event").value;
 
 				document.getElementById('error-details-modal').innerHTML = '';
+				document.getElementById('warning-details-modal').innerHTML = '';
 
 				fetch(`/events/${event}/leave`, {
 					method: 'POST',
@@ -286,7 +311,7 @@
 					if (data.success == false) {
 						document.getElementById('error-details-modal').innerHTML = data.message;
 					} else {
-						window.location.href = `{{ url('/events?event=${event}') }}`;
+						// window.location.href = `{{ url('/events?event=${event}') }}`;
 					}
 				})
 				.catch(error => console.error('An error occurred while leaving the event.'));
@@ -296,6 +321,7 @@
 				event.preventDefault();
 				
 				document.getElementById('error-details-modal').innerHTML = '';
+				document.getElementById('warning-details-modal').innerHTML = '';
 
 				const formData = new FormData(this);
 				const event_id = document.getElementById("event").value;
@@ -383,6 +409,7 @@
 			</div>
 
 			<x-text-error id="error-details-modal" class="mb-4"></x-text-error>
+			<p id="warning-details-modal" class="mb-4 text-sm text-gray-600 dark:text-gray-400 space-y-1 font-semibold"></p>
 
 			<div class="flex justify-between">
 				<div>
