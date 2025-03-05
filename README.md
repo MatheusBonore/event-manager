@@ -1,158 +1,273 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Event Manager System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Descrição
 
-## About Laravel
+Este sistema permite a criação, gerenciamento e participação em eventos. Os usuários podem visualizar eventos, adicionar novos eventos, acompanhar a capacidade e status dos eventos e gerenciar sua participação.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Funcionalidades
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 1. Dashboard
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Exibe um resumo das atividades do usuário:
+  - **Eventos Criados:** Quantidade total de eventos criados pelo usuário.
+  - **Eventos por Status:** Número de eventos abertos, fechados e cancelados.
+  - **Eventos que estou participando:** Exibe o total de eventos que o usuário está registrado.
+  - Botão **Adicionar Evento** para criar novos eventos.
 
-## Learning Laravel
+### 2. Adicionar Evento
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Formulário para a criação de um novo evento contendo os seguintes campos:
+  - **Título**: Nome do evento.
+  - **Descrição**: Detalhes do evento.
+  - **Data e Hora de Início e Fim**: Período de duração do evento.
+  - **Localização**: Endereço onde o evento ocorrerá.
+  - **Capacidade**: Número máximo de participantes.
+  - **Status**: Define se o evento está "Aberto", "Fechado" ou "Cancelado".
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 3. Listagem de Eventos
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Exibição dos eventos cadastrados no sistema com informações detalhadas:
+  - **Título e descrição do evento**
+  - **Data e horário**
+  - **Localização**
+  - **Capacidade de participantes** (inscritos/limite)
+  - **Status do evento**:
+    - "Aberto" (inscrições ainda disponíveis)
+    - "Fechado" (evento concluído ou lotado)
+    - "Cancelado"
+  - **Participantes**: Lista de usuários confirmados para o evento.
 
-## Laravel Sponsors
+## Tecnologias Utilizadas
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- **Frontend:** Tailwind CSS, Alpine.js, Flowbite
+- **Backend:** Laravel com Vite
+- **Build Tools:** Vite, Laravel Vite Plugin
+- **Estilização:** Tailwind CSS, @tailwindcss/forms, PostCSS, Autoprefixer
+- **Requisições HTTP:** Axios
+- **Banco de Dados:** MySQL
 
-### Premium Partners
+## Configurando o Ambiente do Projeto
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-## HTTP Responses
-
-- **1XX**: Information — the request has been accepted or the process is still ongoing;
-
-- **2XX**: Confirmation
-	- **200** — Successful request
-	- **201** — Created — Generally used for POST after an insertion
-
-- **3XX**: Redirect
-	- **301** - Moved Permanently
-	- **302** - Moved
-
-- **4XX**: Client error
-	- **400** - Bad Request
-	- **401** - Unauthorized
-	- **403** - Forbidden
-	- **404** - Not Found
-	- **422** - Unprocessable Entity
-
-- **5XX**: Error on the server — the server failed to complete the request.
-	- **500** - Internal Server Error
-	- **502** - Bad Gateway
-
-## Documentation Links
-- **[Tailwindcss](https://tailwindcss.com/docs/installation/using-vite)**
-- **[Flowbite](https://flowbite.com/docs/getting-started/introduction/)**
-
-## Commands
-```bash
-npm run build
+### 1. Clonar o Repositório
+Se ainda não clonou o projeto, utilize o comando:
+```sh
+git clone https://github.com/MatheusBonore/event-manager.git
+cd event-manager
 ```
 
-```bash
-npm run dev
+### 2. Criar o Arquivo `.env`
+O Laravel utiliza um arquivo `.env` para armazenar configurações sensíveis. Se ainda não existir, copie o arquivo de exemplo:
+```sh
+cp .env.example .env
 ```
 
-```bash
-php artisan serve
+### 3. Instalar Dependências
+Instale as dependências do projeto usando o Composer:
+```sh
+composer install
+```
+E as dependências do Node.js, caso necessário:
+```sh
+npm install
 ```
 
-```bash
-php artisan storage:link
+### 4. Gerar a Chave da Aplicação
+Gere uma nova chave para garantir o funcionamento correto do Laravel:
+```sh
+php artisan key:generate
 ```
 
-```bash
-php artisan make:model ['NAME'] --migration
+### 5. Configurar Banco de Dados
+Edite o arquivo `.env` e configure as credenciais do banco de dados:
+```ini
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=event_manager
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
+Substitua `seu_usuario` e `sua_senha` pelos dados corretos do banco de dados.
+
+### 6. Configurar E-mail
+Caso utilize SMTP para envio de e-mails, preencha com os dados corretos:
+```ini
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=seu_email@gmail.com
+MAIL_PASSWORD="sua_senha"
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="seu_email@gmail.com"
+MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-```bash
-php artisan make:controller ['NAME']Controller --api
-```
-
-```bash
-php artisan route:list
-```
-
-```bash
-php artisan route:cache
-```
-
-```bash
-php artisan route:clear
-```
-
-```bash
-php artisan list
-```
-
-```bash
-php artisan make:migration create_['NAME']_table
-```
-
-```bash
-php artisan migrate
-```
-
-```bash
+### 7. Rodar as Migrations e Seeders
+Para criar as tabelas no banco de dados e popular com dados de teste, execute:
+```sh
 php artisan migrate:fresh --seed
 ```
 
-```bash
-php artisan optimize:clear
+### 8. Servir a Aplicação
+Agora, inicie o servidor local com:
+```sh
+php artisan serve
+```
+A aplicação estará disponível em: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+### 9. Compilar os Assets (Opcional)
+Caso o projeto utilize frontend com Vite, rode:
+```sh
+npm run dev
+```
+Agora seu ambiente está pronto para uso!
+
+---
+
+## Documentação da API
+
+### Base URL
+A API está disponível localmente no seguinte endereço:
+```
+http://127.0.0.1:8000
 ```
 
-```bash
-php artisan migrate:fresh
+### Autenticação
+A API utiliza autenticação baseada em tokens (Bearer Token). Para acessar as rotas protegidas, é necessário primeiro se registrar e fazer login para obter um token de autenticação.
+
+#### Criar um usuário (Registro)
+```
+POST /api/register
+```
+**Parâmetros:**
+- `name`: Nome do usuário
+- `email`: E-mail do usuário
+- `password`: Senha do usuário
+- `password_confirmation`: Confirmação da senha
+
+**cURL Example:**
+```sh
+curl --location 'http://127.0.0.1:8000/api/register' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'name=Test System' \
+--data-urlencode 'email=test@email.com' \
+--data-urlencode 'password=root@eventmanager' \
+--data-urlencode 'password_confirmation=root@eventmanager'
 ```
 
-```bash
-composer dump-autoload
+#### Login
+```
+POST /api/login
+```
+**Parâmetros:**
+- `email`: E-mail do usuário
+- `password`: Senha do usuário
+
+**cURL Example:**
+```sh
+curl --location 'http://127.0.0.1:8000/api/login' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'email=seu_email@gmail.com' \
+--data-urlencode 'password=root@eventmanager'
+```
+
+#### Logout
+```
+POST /api/logout
+```
+**cURL Example:**
+```sh
+curl --location --request POST 'http://127.0.0.1:8000/api/logout' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer <TOKEN>'
+```
+
+#### Obter Usuário Autenticado
+```
+GET /api/user
+```
+**cURL Example:**
+```sh
+curl --location 'http://127.0.0.1:8000/api/user' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer <TOKEN>'
+```
+
+---
+
+## Gerenciamento de Eventos
+
+#### Listar Eventos
+```
+GET /api/events?include=creator,attendees
+```
+**cURL Example:**
+```sh
+curl --location 'http://127.0.0.1:8000/api/events?include=creator%2Cattendees' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer <TOKEN>'
+```
+
+#### Obter um Evento Específico
+```
+GET /api/events/{event_id}?include=creator,attendees
+```
+**cURL Example:**
+```sh
+curl --location 'http://127.0.0.1:8000/api/events/{event_id}?include=creator%2Cattendees' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer <TOKEN>'
+```
+
+#### Criar um Evento
+```
+POST /api/events
+```
+**Parâmetros:**
+- `title`: Título do evento
+- `description`: Descrição do evento
+- `location`: Localização do evento
+- `capacity`: Capacidade máxima de participantes
+- `status`: Estado do evento (ex: "open")
+- `start_time`: Data e hora de início
+- `end_time`: Data e hora de término
+
+**cURL Example:**
+```sh
+curl --location 'http://127.0.0.1:8000/api/events' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer <TOKEN>' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'title=Test' \
+--data-urlencode 'description=Testando' \
+--data-urlencode 'location=Marília' \
+--data-urlencode 'capacity=200' \
+--data-urlencode 'status=open' \
+--data-urlencode 'start_time=2025-03-28 11:42:33' \
+--data-urlencode 'end_time=2025-03-28 15:42:33'
+```
+
+#### Atualizar um Evento
+```
+PUT /api/events/{event_id}
+```
+**Parâmetros:**
+- `title`: Novo título do evento
+- `description`: Nova descrição do evento
+- `location`: Nova localização
+- `capacity`: Nova capacidade máxima
+- `status`: Novo status do evento
+- `start_time`: Nova data e hora de início
+- `end_time`: Nova data e hora de término
+
+**cURL Example:**
+```sh
+curl --location --request PUT 'http://127.0.0.1:8000/api/events/{event_id}' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer <TOKEN>' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'title=Novo Título' \
+--data-urlencode 'description=Nova Descrição'
 ```
