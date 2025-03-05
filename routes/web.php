@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
 		->name('events.leave');
 });
 
-Route::get('/events/{event}/confirm/{action}/{token}', [EventController::class, 'confirmAction']);
+Route::get('/events/{event}/confirm/{action}/{token}', [EventController::class, 'confirmAction'])
+	->name('events.confirmAction');
 
 require __DIR__ . '/auth.php';

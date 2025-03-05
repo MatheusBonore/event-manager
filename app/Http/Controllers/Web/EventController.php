@@ -180,6 +180,13 @@ class EventController extends Controller
 		$event = Event::findOrFail($event);
 		$user = auth()->user();
 
+		if ($event->attendees()->count() >= $event->capacity) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Event capacity reached.'
+			], 400);
+		}
+
 		if ($event->attendees->contains($user->user)) {
 			return response()->json([
 				'success' => false,
@@ -217,7 +224,7 @@ class EventController extends Controller
 
 		return response()->json([
 			'success' => true,
-			'message' => 'You left the event'
+			'message' => 'You left the event.'
 		], 200);
 	}
 
@@ -250,8 +257,7 @@ class EventController extends Controller
 		if (!$this->verifyConfirmationToken($user->user, $event->event, $action, $token)) {
 			return response()->json([
 				'success' => false,
-				'message' => 'Invalid or expired token.
-			'
+				'message' => 'Invalid or expired token.'
 			], 400);
 		}
 

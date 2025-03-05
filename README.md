@@ -105,7 +105,7 @@ MAIL_FROM_NAME="${APP_NAME}"
 ### 7. Rodar as Migrations e Seeders
 Para criar as tabelas no banco de dados e popular com dados de teste, execute:
 ```sh
-php artisan migrate:fresh --seed
+php artisan migrate --seed
 ```
 
 ### 8. Servir a Aplicação
@@ -115,14 +115,83 @@ php artisan serve
 ```
 A aplicação estará disponível em: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-### 9. Compilar os Assets (Opcional)
+### 9. Compilar os Assets
 Caso o projeto utilize frontend com Vite, rode:
 ```sh
 npm run dev
 ```
 Agora seu ambiente está pronto para uso!
 
----
+## Executando Testes
+
+Para executar todos os testes no projeto de uma vez, basta rodar o seguinte comando:
+
+```bash
+php artisan test
+```
+
+### Executando Testes Específicos
+Você também pode executar testes específicos utilizando o comando  `php artisan test --filter=`, seguido pelo nome do teste. Aqui estão alguns exemplos de testes que você pode executar:
+
+Testa a criação de um evento:
+
+```bash
+php artisan test --filter=it_creates_an_event
+```
+
+Permite que o usuário participe de um evento:
+
+```bash
+php artisan test --filter=it_allows_user_to_participate_in_event
+```
+
+Impede que o usuário participe de um evento novamente:
+
+```bash
+php artisan test --filter=it_prevents_user_from_participating_again_in_event
+```
+
+Permite que o usuário saia de um evento:
+
+```bash
+php artisan test --filter=it_allows_user_to_leave_event
+```
+
+Impede que o usuário saia de um evento se não estiver participando:
+
+```bash
+php artisan test --filter=it_prevents_user_from_leaving_event_if_not_participating
+```
+
+Confirma a ação de participação no evento:
+
+```bash
+php artisan test --filter=it_confirms_participation_action
+```
+
+Confirma a ação de cancelamento de participação no evento:
+
+```bash
+php artisan test --filter=it_confirms_cancellation_action
+```
+
+Valida a capacidade do evento:
+
+```bash
+php artisan test --filter=it_validates_event_capacity
+```
+
+Atualiza um evento:
+
+```bash
+php artisan test --filter=it_updates_an_event
+```
+
+Processa os dados do evento corretamente:
+
+```bash
+php artisan test --filter=it_processes_event_data_correctly
+```
 
 ## Documentação da API
 
@@ -195,9 +264,7 @@ curl --location 'http://127.0.0.1:8000/api/user' \
 --header 'Authorization: Bearer <TOKEN>'
 ```
 
----
-
-## Gerenciamento de Eventos
+### Gerenciamento de Eventos
 
 #### Listar Eventos
 ```

@@ -26,6 +26,16 @@ class EventCancellationNotification extends Notification implements ShouldQueue
 		return ['mail', 'database'];
 	}
 
+	public function toDatabase($notifiable)
+	{
+		return [
+			'event_id' => $this->event->id,
+			'user_id' => $this->user->id,
+			'event_title' => $this->event->title,
+			'message' => "You have requested to cancel your registration for the event {$this->event->title}.",
+		];
+	}
+
 	public function toMail($notifiable)
 	{
 		$confirmationLink = $this->generateConfirmationToken($notifiable->user, $this->event->event, 'cancellation');
